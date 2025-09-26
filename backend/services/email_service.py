@@ -10,32 +10,6 @@ from models.response import EmailAnalysisResponse
 api_key = os.getenv("GEMINI_API_KEY")
 client = genai.Client(api_key=api_key)
 
-
-# categorize_email_tool = genai.types.Tool(
-#         genai.types.FunctionDeclaration(
-#             name="categorize_email",
-#             description="Classifica o conteúdo do email e sugere uma resposta.",
-#             parameters=genai.types.Schema(
-#                 type=genai.types.Type.OBJECT,
-#                 properties={
-#             "category": genai.types.Schema(
-#                 type=genai.types.Type.STRING,
-#                 description="Categoria do email: 'Produtivo' ou 'Improdutivo'.",
-#                 enum=["Produtivo", "Improdutivo"]
-#             ),
-#             "response": genai.types.Schema(
-#                 type=genai.types.Type.STRING,
-#                 description="Resposta sugerida para o email, concisa e profissional."
-#             )
-#         },
-#          required=["category", "response"]
-#         )
-#     )
-# )
-
-
-
-
 def analyze_email_content(content: str) -> dict:
     """
     Analisa o conteúdo de um email usando o modelo Gemini com uma ferramenta de classificação.

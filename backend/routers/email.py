@@ -1,4 +1,3 @@
-# routers/email.py
 import PyPDF2
 import io
 from typing import Optional
@@ -7,8 +6,8 @@ from models.response import EmailAnalysisResponse
 from services import email_service
 
 router = APIRouter(
-    prefix="/email",
-    tags=["Email Analysis"]
+    prefix="/api/email",  
+    tags=["Email Analysis"] 
 )
 
 @router.post("/analyze", response_model=EmailAnalysisResponse)

@@ -30,7 +30,7 @@ import {
   Check,
   AlertTriangle,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "../../lib/utils";
 
 // 1. ATUALIZAÇÃO: Interface de tipos sem o campo 'keywords'
 interface AnalysisResult {

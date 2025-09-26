@@ -2,24 +2,28 @@
   "version": 2,
   "builds": [
     {
-      "src": "backend/main.py",
-      "use": "@vercel/python"
+      "src": "frontend/package.json",
+      "use": "@vercel/next"
     },
     {
-      "src": "frontend/package.json",
-      "use": "@vercel/next",
-      "config": {
-        "distDir": "out"
-      }
+      "src": "backend/main.py",
+      "use": "@vercel/python"
     }
   ],
   "routes": [
     {
-      "src": "/api/(.*)",
+      "src": "^/api/email(/.*)?$",
       "dest": "backend/main.py"
     },
     {
-      "src": "/(.*)",
+      "src": "^/_next/static/(.*)$",
+      "headers": {
+        "cache-control": "public, max-age=31536000, immutable"
+      },
+      "dest": "frontend/_next/static/$1"
+    },
+    {
+      "src": "^/(.*)$",
       "dest": "frontend/$1"
     }
   ]

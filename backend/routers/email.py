@@ -6,7 +6,7 @@ from models.response import EmailAnalysisResponse
 from services import email_service
 
 router = APIRouter(
-    prefix="/email",  
+    prefix="/api/email",  
     tags=["Email Analysis"] 
 )
 

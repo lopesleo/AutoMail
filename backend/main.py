@@ -3,7 +3,6 @@ import sys
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
-from mangum import Mangum
 
 # Adicionar o diretório atual ao path do Python
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -60,5 +59,3 @@ async def analyze_email(request: EmailAnalysisRequest):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro interno do servidor: {str(e)}")
-
-handler = Mangum(app)

@@ -12,6 +12,18 @@
   ],
   "rewrites": [
     {
+      "source": "/_next/:path*",
+      "destination": "/frontend/_next/:path*"
+    },
+    {
+      "source": "/:file(favicon.ico|sounds/.*|images/.*|.*\\.mp3|.*\\.woff2)",
+      "destination": "/frontend/:file"
+    },
+    {
+      "source": "/",
+      "destination": "/frontend"
+    },
+    {
       "source": "/api/:path*",
       "destination": "/backend/main.py"
     }

@@ -1,37 +1,28 @@
 import os
-import sys
-from fastapi.middleware.cors import CORSMiddleware
-from dotenv import load_dotenv
-import PyPDF2
 import io
 from typing import Optional
-from fastapi import APIRouter, HTTPException, UploadFile, File, Form
-from models.response import EmailAnalysisResponse
-from services import email_service
 
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+from fastapi import FastAPI, HTTPException, Form, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
+from dotenv import load_dotenv
+from pypdf import PdfReader 
 
 load_dotenv()
 
-from models.response import EmailAnalysisRequest, EmailAnalysisResponse
+from models.response import EmailAnalysisResponse
 from services.email_service import analyze_email_content
 
 app = FastAPI(title="AutoU Email Analysis API")
 
-FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
-
 origins = [
-    FRONTEND_URL,
-    "https://vercel.app", 
-    "https://*.vercel.app",
-    "http://localhost:3000",
+    os.getenv("FRONTEND_URL", "http://localhost:3000"),
+    "https://*.vercel.app", 
 ]
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"], 
+    allow_methods=["*"],
     allow_headers=["*"],
 )
 
@@ -39,25 +30,18 @@ app.add_middleware(
 async def root():
     return {"message": "AutoU Email Analysis API is running"}
 
-@app.get("/api/health")
+@app.get("/health")
 async def health_check():
     return {"status": "healthy", "service": "email-analysis"}
 
-
-
-@app.post("/api/email/analyze", response_model=EmailAnalysisResponse)
-async def analyze_unified_endpoint(
+@app.post("/email/analyze", response_model=EmailAnalysisResponse)
+async def analyze_email(
     content: Optional[str] = Form(None), 
-    file: Optional[UploadFile] = File(None)
+    file: Optional[UploadFile] = None
 ):
     """
-    Rota unificada para analisar um email.
-
-    Pode receber o conteúdo de duas formas (DÊ PREFERÊNCIA AO ARQUIVO):
-    1. Um arquivo (.txt ou .pdf) enviado no campo 'file'.
-    2. Um texto simples enviado no campo 'content'.
-
-    Se ambos forem enviados, o arquivo será processado.
+    Analisa o conteúdo de um email, que pode vir de um campo de texto 'content'
+    ou de um arquivo 'file' (.txt ou .pdf).
     """
     email_text = ""
 
@@ -68,9 +52,9 @@ async def analyze_unified_endpoint(
         elif file.filename.endswith('.pdf'):
             try:
                 pdf_bytes = await file.read()
-                pdf_reader = PyPDF2.PdfReader(io.BytesIO(pdf_bytes))
+                pdf_reader = PdfReader(io.BytesIO(pdf_bytes))
                 text_parts = [page.extract_text() for page in pdf_reader.pages]
-                email_text = " ".join(filter(None, text_parts)) 
+                email_text = " ".join(filter(None, text_parts))
             except Exception as e:
                 raise HTTPException(status_code=400, detail=f"Erro ao ler o arquivo PDF: {e}")
         else:
@@ -83,11 +67,9 @@ async def analyze_unified_endpoint(
         raise HTTPException(status_code=400, detail="Nenhum conteúdo de email ou arquivo foi enviado.")
 
     if not email_text or not email_text.strip():
-        raise HTTPException(status_code=400, detail="O conteúdo do email está vazio.")
+        raise HTTPException(status_code=400, detail="O conteúdo do email está vazio após o processamento.")
 
     try:
-        return email_service.analyze_email_content(email_text)
-    except HTTPException as e:
-        raise e
+        return analyze_email_content(email_text)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Erro interno no servidor: {str(e)}")
+        raise HTTPException(status_code=500, detail="Ocorreu um erro interno ao analisar o conteúdo.")

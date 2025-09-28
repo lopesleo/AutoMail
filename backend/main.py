@@ -1,3 +1,4 @@
+import email
 import os
 import sys
 from fastapi import FastAPI, HTTPException
@@ -43,19 +44,4 @@ async def health_check():
 
 
 
-@app.post("/api/email/analyze", response_model=EmailAnalysisResponse)
-async def analyze_email(request: EmailAnalysisRequest):
-    """
-    Analisa o conteúdo de um email e retorna categoria, razão e resposta sugerida.
-    """
-    try:
-        if not request.content or not request.content.strip():
-            raise HTTPException(status_code=400, detail="Conteúdo do email não pode estar vazio")
-        
-        result = analyze_email_content(request.content)
-        return result
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Erro interno do servidor: {str(e)}")
+app.include_router(email.router)
